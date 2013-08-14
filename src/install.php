@@ -13,6 +13,8 @@ use Mouf\MoufManager;
 // Let's init Mouf
 InstallUtils::init(InstallUtils::$INIT_APP);
 
+$moufManager = MoufManager::getMoufManager();
+
 // Let's create the instance.
 $patchService = InstallUtils::getOrCreateInstance('patchService', 'Mouf\\Utils\\Patcher\\PatchService', $moufManager);
 

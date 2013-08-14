@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 namespace Mouf\Utils\Patcher;
 
 /**
- * Classes implementing this interface reprensent patches that can be applied on the application.
+ * Classes implementing this interface represent patches that can be applied on the application.
  * 
  * @author David Negrier <david@mouf-php.com>
  */
@@ -29,11 +29,17 @@ interface PatchInterface {
 	const STATUS_AWAITING = "awaiting";
 	const STATUS_APPLIED = "applied";
 	const STATUS_SKIPPED = "skipped";
+	const STATUS_ERROR = "error";
 	
 	/**
 	 * Applies the patch.
 	 */
 	function apply();
+	
+	/**
+	 * Skips the patch (sets its status to "skipped").
+	 */
+	function skip();
 
 	/**
 	 * Reverts (cancels) the patch.
@@ -56,6 +62,8 @@ interface PatchInterface {
 	 * - PatchInterface::STATUS_AWAITING (patch awaiting to be applied)
 	 * - PatchInterface::STATUS_APPLIED (patch has been run successfully)
 	 * - PatchInterface::STATUS_SKIPPED (patch has been skipped)
+	 * 
+	 * @return string
 	 */
 	function getStatus();
 	
@@ -72,5 +80,20 @@ interface PatchInterface {
 	 * @return string
 	 */
 	function getDescription();
+	
+	/**
+	 * Returns the error message of the last action performed, or null if last action was successful.
+	 * 
+	 * @return string
+	 */
+	function getLastErrorMessage();
+	
+	/**
+	 * Returns the URL that can be used to edit this patch.
+	 * This can return null if such an URL does not exist.
+	 * 
+	 * @return string
+	 */
+	function getEditUrl();
 }
 
