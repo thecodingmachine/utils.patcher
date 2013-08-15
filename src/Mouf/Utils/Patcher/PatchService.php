@@ -119,6 +119,21 @@ class PatchService implements MoufValidatorInterface {
 	}
 	
 	/**
+	 * Returns the number of patches that have errors.
+	 *
+	 * @return int
+	 */
+	public function getNbPatchsInError() {
+		$cnt = 0;
+		foreach ($this->patchs as $patch) {
+			if ($patch->getStatus() == PatchInterface::STATUS_ERROR) {
+				$cnt++;
+			}
+		}
+		return $cnt;
+	}
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see \Mouf\Validator\MoufValidatorInterface::validateInstance()
 	 */
@@ -126,9 +141,10 @@ class PatchService implements MoufValidatorInterface {
 		
 		$nbPatchs = count($this->patchs);
 		$nbAwaitingPatchs = $this->getNbAwaitingPatchs();
+		$nbPatchsInError = $this->getNbPatchsInError();
 		$instanceName = MoufManager::getMoufManager()->findInstanceName($this);
 		
-		if ($nbAwaitingPatchs == 0) {
+		if ($nbAwaitingPatchs == 0 && $nbPatchsInError == 0) {
 			if ($nbPatchs == 0) {
 				return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<strong>Patcher</strong>: No patches declared");
 			} elseif ($nbPatchs == 0) {
@@ -137,7 +153,26 @@ class PatchService implements MoufValidatorInterface {
 				return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<strong>Patcher</strong>: All $nbPatchs patches have been successfully applied");
 			}
 		} else {
-			return new MoufValidatorResult(MoufValidatorResult::WARN, "<strong>Patcher</strong>: There are <strong>$nbAwaitingPatchs</strong> patches awaiting to be applied. <a href='".ROOT_URL."mouf/mouf/patcher/?instanceName=$instanceName' class='btn btn-large btn-primary'>Apply the patches</a>.");
+			if ($nbPatchsInError == 0) {
+				$status = MoufValidatorResult::WARN;
+			} else {
+				$status = MoufValidatorResult::ERROR;
+			}
+			
+			$html = '<strong>Patcher</strong>: <a href="'.ROOT_URL.'vendor/mouf/mouf/patcher/?name='.$instanceName.'" class="btn btn-large btn-success patch-run-all"><i class="icon-arrow-right icon-white"></i> Apply ';
+			if ($nbAwaitingPatchs != 0) {
+				$html .= $nbAwaitingPatchs." awaiting patch".(($nbAwaitingPatchs != 1)?"es":"");
+				if ($nbPatchsInError != 0) {
+					$html .=" and";
+				}
+			}
+			if ($nbPatchsInError != 0) {
+				$html .=$nbPatchsInError." patch".(($nbPatchsInError != 1)?"es":"")." in error";
+			}
+			$html .='</a>';
+				
+			
+			return new MoufValidatorResult($status, $html);
 		}	
 	}
 	

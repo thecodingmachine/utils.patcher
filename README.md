@@ -4,76 +4,73 @@ Mouf's patching system
 This package is a patch system designed for [Mouf](http://mouf-php.com) than enables developers to know what patch has been run and what needs to be run on its environment.
 If you are working with a team or with many environment, this is very useful to know which database patches have been applied or not in an environment.
 
-Inside the patch service
-------------------------
+Installing the patch service
+----------------------------
 
-At the core of Mouf's patch system, there is the **patch service**.
-The patch service is in charge of referencing all patches that can be applied to your application.
-As such, it contains a list of patches to be applied.
+Installation is done via [composer](http://getcomposer.com). Here is a typical _composer.json_ file:
 
-The patch service is represented by the <code>PatchService</code> class. If comes with a default instance that is installed in Mouf with the package.
-The default instance name if *patchService*.
 
-The <code>PatchService</code> class registers <code>PatchInterface</code> instances (using the **registerPatch** method).
-
-```php
-Mouf::getPatchService()->register($myPatch);
-```
- 
-The patch service is 'implementation agnostic'. It does not know if you are installing a patch related to the database, or to the file system, or whatever.
-It does not even know if a patch has been run or not. This is delegated to the patch objects (implementing the <code>PatchInterface</code>).
-
-Very often, the patch service is used to track database patches. But you can use the patch service to patch anything you want. You just have to implement
-the <code>PatchInterface</code> to be able to create your own patch.
-
-```php
-interface PatchInterface {
+```json
+{
 	...
-	/**
-	 * Applies the patch.
-	 */
-	function apply();
-
-	/**
-	 * Reverts (cancels) the patch.
-	 * Note: patchs do not have to provide a "revert" feature (see canRevert method).
-	 */
-	function revert();
-	
-	/**
-	 * Returns true if this patch can be canceled, false otherwise.
-	 * 
-	 * @return boolean
-	 */
-	function canRevert();
-	
-	/**
-	 * Returns the status of this patch.
-	 * 
-	 * Can be one of:
-	 * 
-	 * - PatchInterface::STATUS_AWAITING (patch awaiting to be applied)
-	 * - PatchInterface::STATUS_APPLIED (patch has been run successfully)
-	 * - PatchInterface::STATUS_SKIPPED (patch has been skipped)
-	 */
-	function getStatus();
-	
-	/**
-	 * Returns a unique name for this patch. 
-	 *
-	 * @return string
-	 */
-	function getUniqueName();
-	
-	/**
-	 * Returns a short description of the patch.
-	 * 
-	 * @return string
-	 */
-	function getDescription();
+    "require": {
+        "mouf/utils.patcher": "~1.0",
+        "mouf/database.patcher": "~1.0"
+    } 
 }
 ```
+As you can see, we are installing two packages here.
 
-As you can see from the (simplified) interface, a patch can be **applied**, optionally **reverted**.
-Each patch must have a unique name, and can provide a description. It is the responsability of the patch object to track its own status (it is **not**
-the responsibility of the PatchService to do this).
+- **mouf/utils.patcher** contains the patch service. The patch service can be used to install any kinds of patches, but does not contain any patches implementation. This is why we need the second packages.
+- **mouf/database.patcher** adds an easy way to create database patches (the most common use of the patch system).
+
+Using the patch service
+-----------------------
+
+Once the patch service is installed, you will notice there is a new menu in Mouf UI.
+
+<img src="doc/images/menu.png" />
+
+Using the **Utils** > **Patches management** menu, you can access the patches list or create new database patches.
+
+Let's have a quick look at the paches list.
+
+<img src="doc/images/patch-list.png" />
+
+In this list, you can view all the patches that have been defined. Using one big button, you can easily apply all the patches
+that needs to be applied. This is really the only button you should ever touch on that screen, unless you are playing with advanced
+features like database replication, etc...
+
+If you need a more *fine-tuned* approach, you can **apply** each patch one by one. You can also 
+**skip** the patch if you prefer to run it yourself or if you know it has already been applied.
+Finally, you will notice that some patches can be **reverted**.
+
+
+Creating/Editing a database patch
+---------------------------------
+
+You can create a new database patch using the **Utils** > **Patches management** > **Register a database patch** menu.
+
+<img src="doc/images/edit-dbpatch.png" />
+
+As you can see, you need to provide a unique patch name. You can (and you should) add a comment that will help
+you and others remember what this patch is doing.
+Finally, you will add the SQL of the patch.
+
+You can choose what to do when you save the patch. You have 3 options:
+
+- Most often, it is likely than when you save the patch, you already applied it in your development environment.
+In this case, you should **skip** the patch (there is no point in applying this patch again).
+- If you haven't applied the patch yet, you can choose to save and **apply** the patch.
+- Finally, you can also choose to save, but **do not apply** the patch yet. In this case, the patch will be in **Awating** state. 
+ 
+###Advanced options
+
+There are a number of advanced options. These will allow you to:
+
+- Choose the file saving the patch (the SQL of the patch is stored in its own file, usually in the **database/up** directory.
+- Set up a *reverse patch* that can be used to cancel/revert your patch.
+
+
+[You are a package developer? You want your own package to create/modify tables? See how you can use the patch system for that.](doc/for_packages_developer.md)  
+[Want to learn more about the patch system? Want to learn how to create you own non db-related patches? Have a look at the advanced documentation.](doc/advanced.md)

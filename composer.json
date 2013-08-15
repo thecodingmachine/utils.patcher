@@ -30,6 +30,16 @@
 	    		"description": "Create the patchService instance."
 			}
 			],
+			"doc": [
+	    		{
+	    			"title": "For packages developers",
+	    			"url": "doc/for_packages_developer.md"
+	    		},
+	    		{
+	    			"title": "Advanced topics",
+	    			"url": "doc/advanced.md"
+	    		}
+	    	],
 			"require-admin": [
     			"src/PatchAdmin.php"
     			],
