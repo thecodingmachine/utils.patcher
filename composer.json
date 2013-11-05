@@ -38,6 +38,10 @@
 	    		{
 	    			"title": "Advanced topics",
 	    			"url": "doc/advanced.md"
+	    		},
+	    		{
+	    			"title": "Troubleshooting",
+	    			"url": "doc/troubleshooting.md"
 	    		}
 	    	],
 			"require-admin": [
