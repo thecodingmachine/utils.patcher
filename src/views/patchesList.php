@@ -9,7 +9,7 @@ else:
 
 if ($this->nbAwaiting == 0 && $this->nbError == 0) {
 ?>
-<div class="alert alert-success">There are no patch that needs to be executed.</div>
+<div class="alert alert-success">There are no patches that need to be executed.</div>
 <?php 
 } else {
 ?>
