@@ -21,7 +21,7 @@ if ($this->nbAwaiting == 0 && $this->nbError == 0) {
 	if ($this->nbAwaiting != 0) {
 		echo $this->nbAwaiting." awaiting patch".(($this->nbAwaiting != 1)?"es":"");
 		if ($this->nbError != 0) {
-			echo " and";
+			echo " and ";
 		}
 	}
 	if ($this->nbError != 0) {
