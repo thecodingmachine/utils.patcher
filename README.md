@@ -1,3 +1,8 @@
+[![Latest Stable Version](https://poser.pugx.org/mouf/utils.patcher/v/stable.svg)](https://packagist.org/packages/mouf/utils.patcher)
+[![Latest Unstable Version](https://poser.pugx.org/mouf/utils.patcher/v/unstable.svg)](https://packagist.org/packages/mouf/utils.patcher)
+[![License](https://poser.pugx.org/mouf/utils.patcher/license.svg)](https://packagist.org/packages/mouf/utils.patcher)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/thecodingmachine/utils.patcher/badges/quality-score.png?b=1.0)](https://scrutinizer-ci.com/g/thecodingmachine/utils.patcher/?branch=1.0)
+
 Mouf's patching system
 ======================
 

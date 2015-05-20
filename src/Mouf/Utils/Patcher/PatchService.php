@@ -67,7 +67,7 @@ class PatchService implements MoufValidatorInterface {
 			if ($ifExists == self::IFEXISTS_IGNORE) {
 				return $this;
 			} else {
-				throw new PatchException("The patch '$patch->getUniqueName()' is already registered.");
+				throw new PatchException("The patch '".$patch->getUniqueName()."' is already registered.");
 			}
 		}
 		$this->patchs[] = $patch;
@@ -187,6 +187,7 @@ class PatchService implements MoufValidatorInterface {
 			$canRevert = null;
 			$description = null;
 			$error_message = null;
+			$editUrl = null;
 			
 			try {
 				$uniqueName = $patch->getUniqueName();
