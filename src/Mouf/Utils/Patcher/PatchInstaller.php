@@ -10,7 +10,11 @@ use Mouf\Actions\InstallUtils;
 use Mouf\Console\ConsoleUtils;
 use Mouf\Installer\PackageInstallerInterface;
 use Mouf\MoufManager;
+use Mouf\Utils\Patcher\Commands\ApplyAllPatchesCommand;
+use Mouf\Utils\Patcher\Commands\ApplyPatchCommand;
 use Mouf\Utils\Patcher\Commands\ListPatchesCommand;
+use Mouf\Utils\Patcher\Commands\RevertPatchCommand;
+use Mouf\Utils\Patcher\Commands\SkipPatchCommand;
 
 class PatchInstaller implements PackageInstallerInterface
 {
@@ -30,6 +34,22 @@ class PatchInstaller implements PackageInstallerInterface
         $listPatchesCommand = $moufManager->createInstance(ListPatchesCommand::class);
         $listPatchesCommand->getConstructorArgumentProperty("patchService")->setValue($patchService);
         $consoleUtils->registerCommand($listPatchesCommand);
+
+        $applyAllPatchesCommand = $moufManager->createInstance(ApplyAllPatchesCommand::class);
+        $applyAllPatchesCommand->getConstructorArgumentProperty("patchService")->setValue($patchService);
+        $consoleUtils->registerCommand($applyAllPatchesCommand);
+
+        $applyPatchCommand = $moufManager->createInstance(ApplyPatchCommand::class);
+        $applyPatchCommand->getConstructorArgumentProperty("patchService")->setValue($patchService);
+        $consoleUtils->registerCommand($applyPatchCommand);
+
+        $skipPatchCommand = $moufManager->createInstance(SkipPatchCommand::class);
+        $skipPatchCommand->getConstructorArgumentProperty("patchService")->setValue($patchService);
+        $consoleUtils->registerCommand($skipPatchCommand);
+
+        $revertPatchCommand = $moufManager->createInstance(RevertPatchCommand::class);
+        $revertPatchCommand->getConstructorArgumentProperty("patchService")->setValue($patchService);
+        $consoleUtils->registerCommand($revertPatchCommand);
 
 
         // Let's rewrite the MoufComponents.php file to save the component
