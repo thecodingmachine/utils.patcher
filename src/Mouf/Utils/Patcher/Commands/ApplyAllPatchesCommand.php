@@ -51,11 +51,11 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->patchesArray = $this->patchService->getView();
+        $patchesArray = $this->patchService->getView();
 
         $count = 0;
         try {
-            foreach ($this->patchesArray as $patch) {
+            foreach ($patchesArray as $patch) {
                 if ($patch['status'] == PatchInterface::STATUS_AWAITING || $patch['status'] == PatchInterface::STATUS_ERROR) {
                     $this->patchService->apply($patch['uniqueName']);
                     $count++;
