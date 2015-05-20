@@ -24,18 +24,12 @@
     },
     "extra": {
 	     "mouf": {
-		   "install" : [{
-			 "type" : "class",
-			 "class" : "Mouf\\Utils\\Patcher\\PatchInstaller"
-		   }
-		   ]
-			"install": [
-			{
-				"type": "file",
-	    		"file": "src/install.php",
-	    		"description": "Create the patchService instance."
+		    "install" : [{
+			    "type" : "class",
+			    "class" : "Mouf\\Utils\\Patcher\\PatchInstaller",
+			    "description": "Create the patchService instance."
 			}
-			],
+		    ],
 			"doc": [
 	    		{
 	    			"title": "For packages developers",
