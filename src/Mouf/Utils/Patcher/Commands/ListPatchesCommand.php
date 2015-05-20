@@ -1,6 +1,7 @@
 <?php
 namespace Mouf\Utils\Patcher\Commands;
 
+use Mouf\Utils\Patcher\PatchInterface;
 use Mouf\Utils\Patcher\PatchService;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,6 +22,7 @@ class ListPatchesCommand extends Command
 
     public function __construct(PatchService $patchService)
     {
+        parent::__construct();
         $this->patchService = $patchService;
     }
 
@@ -32,7 +34,6 @@ class ListPatchesCommand extends Command
     {
         $this
         ->setName('patches:list')
-        ->setAliases(array('patch:list'))
         ->setDescription('List all the patches.')
         ->setDefinition(array(
 
@@ -52,17 +53,8 @@ EOT
     {
         $patches = $this->patchService->getView();
 
-        /*$patchView = array(
-            "uniqueName"=>$uniqueName,
-            "status"=>$status,
-            "canRevert"=>$canRevert,
-            "description"=>$description,
-            "error_message"=>$error_message,
-            "edit_url"=>$editUrl
-        );*/
-
         $rows = array_map(function($row) {
-            return [ $row['uniqueName'], $row['status'] ];
+            return [ $row['uniqueName'], $this->renderStatus($row['status']) ];
         }, $patches);
 
         $table = new Table($output);
@@ -71,10 +63,18 @@ EOT
             ->setRows($rows)
         ;
         $table->render();
+    }
 
-
-        /*$output->writeln(PHP_EOL . sprintf(
-                'Exporting "<info>%s</info>" mapping information to "<info>%s</info>"', $toType, $destPath
-            ));*/
+    private function renderStatus($status) {
+        $map = [
+            PatchInterface::STATUS_APPLIED => "<info>Applied</info>",
+            PatchInterface::STATUS_SKIPPED => "<comment>Skipped</comment>",
+            PatchInterface::STATUS_AWAITING => "Awaiting",
+            PatchInterface::STATUS_ERROR => "<error>Skipped</error>",
+        ];
+        if (!isset($map[$status])) {
+            throw new \Exception('Unexpected status "'.$map[$status].'"');
+        }
+        return $map[$status];
     }
 }
