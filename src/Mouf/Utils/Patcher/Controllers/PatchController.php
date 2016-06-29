@@ -41,6 +41,7 @@ class PatchController extends AbstractMoufInstanceController {
 	 * Page listing the patches to be applied.
 	 *
 	 * @Action
+	 * @Logged
 	 */
 	public function defaultAction($name, $selfedit="false") {
 		$this->initController($name, $selfedit);
@@ -65,6 +66,7 @@ class PatchController extends AbstractMoufInstanceController {
 	 * Runs a patch.
 	 * 
 	 * @Action
+	 * @Logged
 	 * @param string $name
 	 * @param string $uniqueName
 	 * @param string $action
@@ -96,6 +98,7 @@ class PatchController extends AbstractMoufInstanceController {
 	 * Runs all patches in a row.
 	 *
 	 * @Action
+	 * @Logged
 	 * @param string $name
 	 * @param string $selfedit
 	 */
