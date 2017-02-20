@@ -1,6 +1,6 @@
 <?php
 /*
- Copyright (C) 2013 David Négrier - THE CODING MACHINE
+ Copyright (C) 2013-2017 David Négrier - THE CODING MACHINE
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,15 +30,33 @@ use Mouf\Validator\MoufValidatorResult;
  * @ExtendedAction {"name":"View patches list", "url":"patcher/", "default":false}
  */
 class PatchService implements MoufValidatorInterface {
+    const IFEXISTS_EXCEPTION = "exception";
+    const IFEXISTS_IGNORE = "ignore";
 
-	/**
+
+    /**
 	 * The list of patches declared for this application.
 	 * 
 	 * @var PatchInterface[]
 	 */
-	private $patchs = array();
+	private $patchs = [];
 
-	/**
+    /**
+     * The list of exiting patch types for this application.
+     *
+     * @var PatchType[]
+     */
+	private $types = [];
+
+    /**
+     * @param PatchType[] $types
+     */
+    public function __construct(array $types)
+    {
+        $this->types = $types;
+    }
+
+    /**
 	 * The list of patches declared for this application.
 	 * @param PatchInterface[] $patchs
 	 * @return PatchService
@@ -47,10 +65,17 @@ class PatchService implements MoufValidatorInterface {
 		$this->patchs = $patchs;
 		return $this;
 	}
-	
-	const IFEXISTS_EXCEPTION = "exception";
-	const IFEXISTS_IGNORE = "ignore";
-	
+
+    /**
+     * The list of exiting patch types for this application.
+     *
+     * @return PatchType[]
+     */
+    public function getTypes(): array
+    {
+        return $this->types;
+    }
+
 	/**
 	 * Adds this patch to the list of existing patches.
 	 * If the patch already exists, an exception is thrown.
@@ -64,7 +89,7 @@ class PatchService implements MoufValidatorInterface {
 	 */
 	public function register(PatchInterface $patch, $ifExists = self::IFEXISTS_IGNORE) {
 		if ($this->has($patch->getUniqueName())) {
-			if ($ifExists == self::IFEXISTS_IGNORE) {
+			if ($ifExists === self::IFEXISTS_IGNORE) {
 				return $this;
 			} else {
 				throw new PatchException("The patch '".$patch->getUniqueName()."' is already registered.");
@@ -81,7 +106,7 @@ class PatchService implements MoufValidatorInterface {
 	 */
 	public function has($uniqueName) {
 		foreach ($this->patchs as $patch) {
-			if ($patch->getUniqueName() == $uniqueName) {
+			if ($patch->getUniqueName() === $uniqueName) {
 				return true;
 			}
 		}
@@ -96,7 +121,7 @@ class PatchService implements MoufValidatorInterface {
 	 */
 	public function get($uniqueName) {
 		foreach ($this->patchs as $patch) {
-			if ($patch->getUniqueName() == $uniqueName) {
+			if ($patch->getUniqueName() === $uniqueName) {
 				return $patch;
 			}
 		}
@@ -108,10 +133,10 @@ class PatchService implements MoufValidatorInterface {
 	 * 
 	 * @return int
 	 */
-	public function getNbAwaitingPatchs() {
+	public function getNbAwaitingPatchs(): int {
 		$cnt = 0;
 		foreach ($this->patchs as $patch) {
-			if ($patch->getStatus() == PatchInterface::STATUS_AWAITING) {
+			if ($patch->getStatus() === PatchInterface::STATUS_AWAITING) {
 				$cnt++;
 			}
 		}
@@ -123,10 +148,10 @@ class PatchService implements MoufValidatorInterface {
 	 *
 	 * @return int
 	 */
-	public function getNbPatchsInError() {
+	public function getNbPatchsInError(): int {
 		$cnt = 0;
 		foreach ($this->patchs as $patch) {
-			if ($patch->getStatus() == PatchInterface::STATUS_ERROR) {
+			if ($patch->getStatus() === PatchInterface::STATUS_ERROR) {
 				$cnt++;
 			}
 		}
@@ -141,11 +166,11 @@ class PatchService implements MoufValidatorInterface {
 		
 		$nbPatchs = count($this->patchs);
 		$nbAwaitingPatchs = $this->getNbAwaitingPatchs();
-		$nbPatchsInError = $this->getNbPatchsInError();
+		$nbPatchesInError = $this->getNbPatchsInError();
 		$instanceName = MoufManager::getMoufManager()->findInstanceName($this);
 		
-		if ($nbAwaitingPatchs == 0 && $nbPatchsInError == 0) {
-			if ($nbPatchs == 0) {
+		if ($nbAwaitingPatchs === 0 && $nbPatchesInError === 0) {
+			if ($nbPatchs === 0) {
 				return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<strong>Patcher</strong>: No patches declared");
 			} elseif ($nbPatchs == 0) {
 				return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<strong>Patcher</strong>: The patch has been successfully applied");
@@ -153,7 +178,7 @@ class PatchService implements MoufValidatorInterface {
 				return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<strong>Patcher</strong>: All $nbPatchs patches have been successfully applied");
 			}
 		} else {
-			if ($nbPatchsInError == 0) {
+			if ($nbPatchesInError == 0) {
 				$status = MoufValidatorResult::WARN;
 			} else {
 				$status = MoufValidatorResult::ERROR;
@@ -162,12 +187,12 @@ class PatchService implements MoufValidatorInterface {
 			$html = '<strong>Patcher</strong>: <a href="'.ROOT_URL.'vendor/mouf/mouf/patcher/?name='.$instanceName.'" class="btn btn-large btn-success patch-run-all"><i class="icon-arrow-right icon-white"></i> Apply ';
 			if ($nbAwaitingPatchs != 0) {
 				$html .= $nbAwaitingPatchs." awaiting patch".(($nbAwaitingPatchs != 1)?"es":"");
-				if ($nbPatchsInError != 0) {
+				if ($nbPatchesInError != 0) {
 					$html .=" and";
 				}
 			}
-			if ($nbPatchsInError != 0) {
-				$html .=$nbPatchsInError." patch".(($nbPatchsInError != 1)?"es":"")." in error";
+			if ($nbPatchesInError != 0) {
+				$html .=$nbPatchesInError." patch".(($nbPatchesInError != 1)?"es":"")." in error";
 			}
 			$html .='</a>';
 				
@@ -179,7 +204,7 @@ class PatchService implements MoufValidatorInterface {
 	/**
 	 * Returns a PHP array representing the patchs.
 	 */
-	public function getView() {
+	public function getView(): array {
 		$view = array();
 		foreach ($this->patchs as $patch) {
 			$uniqueName = null;
@@ -188,6 +213,7 @@ class PatchService implements MoufValidatorInterface {
 			$description = null;
 			$error_message = null;
 			$editUrl = null;
+			$patchType = null;
 			
 			try {
 				$uniqueName = $patch->getUniqueName();
@@ -196,6 +222,7 @@ class PatchService implements MoufValidatorInterface {
 				$editUrl = $patch->getEditUrl()."&name=".MoufManager::getMoufManager()->findInstanceName($this);
 				$status = $patch->getStatus();
 				$error_message = $patch->getLastErrorMessage();
+				$patchType = $patch->getPatchType()->getName();
 				
 			} catch (\Exception $e) {
 				$status = PatchInterface::STATUS_ERROR;
@@ -208,7 +235,8 @@ class PatchService implements MoufValidatorInterface {
 				"canRevert"=>$canRevert,
 				"description"=>$description,
 				"error_message"=>$error_message,
-				"edit_url"=>$editUrl
+				"edit_url"=>$editUrl,
+                "patch_type"=>$patchType
 			);
 			$view[] = $patchView;
 		}
@@ -219,7 +247,7 @@ class PatchService implements MoufValidatorInterface {
 	 * Applies the patch whose unique name is passed in parameter.
 	 * @param string $uniqueName
 	 */
-	public function apply($uniqueName) {
+	public function apply($uniqueName): void {
 		$patch = $this->get($uniqueName);
 		$patch->apply();
 	}
@@ -228,7 +256,7 @@ class PatchService implements MoufValidatorInterface {
 	 * Skips the patch whose unique name is passed in parameter.
 	 * @param string $uniqueName
 	 */
-	public function skip($uniqueName) {
+	public function skip($uniqueName): void {
 		$patch = $this->get($uniqueName);
 		$patch->skip();
 	}
@@ -238,7 +266,7 @@ class PatchService implements MoufValidatorInterface {
 	 * Reverts the patch whose unique name is passed in parameter.
 	 * @param string $uniqueName
 	 */
-	public function revert($uniqueName) {
+	public function revert($uniqueName): void {
 		$patch = $this->get($uniqueName);
 		$patch->revert();
 	}
