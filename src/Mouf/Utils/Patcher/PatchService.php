@@ -76,6 +76,17 @@ class PatchService implements MoufValidatorInterface {
         return $this->types;
     }
 
+    /**
+     * @internal Returns a serialized list of types for the patch UI.
+     * @return array
+     */
+    public function _getSerializedTypes(): array
+    {
+        return array_map(function(PatchType $type) {
+            return $type->jsonSerialize();
+        }, $this->types);
+    }
+
 	/**
 	 * Adds this patch to the list of existing patches.
 	 * If the patch already exists, an exception is thrown.
@@ -203,6 +214,8 @@ class PatchService implements MoufValidatorInterface {
 	
 	/**
 	 * Returns a PHP array representing the patchs.
+     *
+     * @internal
 	 */
 	public function getView(): array {
 		$view = array();

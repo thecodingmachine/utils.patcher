@@ -22,8 +22,8 @@ class ApplyAllPatchesCommand extends Command
 
     public function __construct(PatchService $patchService)
     {
-        parent::__construct();
         $this->patchService = $patchService;
+        parent::__construct();
     }
 
 
@@ -34,16 +34,22 @@ class ApplyAllPatchesCommand extends Command
     {
         $this
         ->setName('patches:apply-all')
-        ->setDescription('Apply all pending patches.')
+        ->setDescription('Apply pending patches.')
         ->setDefinition(array(
 
         ))
         ->setHelp(<<<EOT
-Apply all pending patches.
+Apply pending patches. You can select the type of patches to be applied using the options. Default patches are always applied.
 
 Use patches:apply if you want to cherry-pick a particular patch.
 EOT
         );
+
+        foreach ($this->patchService->getTypes() as $type) {
+            if ($type->getName() !== '') {
+                $this->addOption($type->getName(), null, InputOption::VALUE_NONE, 'Applies patches of type "'.$type->getName().'". '.$type->getDescription());
+            }
+        }
     }
 
     /**

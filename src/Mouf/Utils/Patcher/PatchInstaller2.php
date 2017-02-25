@@ -8,6 +8,7 @@ namespace Mouf\Utils\Patcher;
 
 use Mouf\Actions\InstallUtils;
 use Mouf\Console\ConsoleUtils;
+use Mouf\Database\Patcher\PatchConnection;
 use Mouf\Installer\PackageInstallerInterface;
 use Mouf\MoufManager;
 use Mouf\Utils\Patcher\Commands\ApplyAllPatchesCommand;

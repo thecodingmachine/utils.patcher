@@ -34,25 +34,25 @@ interface PatchInterface {
 	/**
 	 * Applies the patch.
 	 */
-	public function apply();
+	public function apply(): void;
 	
 	/**
 	 * Skips the patch (sets its status to "skipped").
 	 */
-    public function skip();
+    public function skip(): void;
 
 	/**
 	 * Reverts (cancels) the patch.
 	 * Note: patchs do not have to provide a "revert" feature (see canRevert method).
 	 */
-    public function revert();
+    public function revert(): void;
 	
 	/**
 	 * Returns true if this patch can be canceled, false otherwise.
 	 * 
 	 * @return boolean
 	 */
-    public function canRevert();
+    public function canRevert(): bool;
 	
 	/**
 	 * Returns the status of this patch.
@@ -65,28 +65,28 @@ interface PatchInterface {
 	 * 
 	 * @return string
 	 */
-    public function getStatus();
+    public function getStatus(): string;
 	
 	/**
 	 * Returns a unique name for this patch. 
 	 *
 	 * @return string
 	 */
-    public function getUniqueName();
+    public function getUniqueName(): string;
 	
 	/**
 	 * Returns a short description of the patch.
 	 * 
 	 * @return string
 	 */
-    public function getDescription();
+    public function getDescription(): string;
 	
 	/**
 	 * Returns the error message of the last action performed, or null if last action was successful.
 	 * 
 	 * @return string
 	 */
-    public function getLastErrorMessage();
+    public function getLastErrorMessage(): ?string;
 	
 	/**
 	 * Returns the URL that can be used to edit this patch.
@@ -94,7 +94,7 @@ interface PatchInterface {
 	 * 
 	 * @return string
 	 */
-    public function getEditUrl();
+    public function getEditUrl(): string;
 
     /**
      * Returns the type of the patch.
