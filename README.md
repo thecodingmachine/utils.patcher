@@ -34,8 +34,8 @@ As you can see, we are installing two packages here.
 - **mouf/utils.patcher** contains the patch service. The patch service can be used to install any kinds of patches, but does not contain any patches implementation. This is why we need the second packages.
 - **mouf/database.patcher** adds an easy way to create database patches (the most common use of the patch system).
 
-Using the patch service
------------------------
+Using the patch service (graphical user interface)
+--------------------------------------------------
 
 Once the patch service is installed, you will notice there is a new menu in Mouf UI.
 
@@ -54,6 +54,28 @@ features like database replication, etc...
 If you need a more *fine-tuned* approach, you can **apply** each patch one by one. You can also 
 **skip** the patch if you prefer to run it yourself or if you know it has already been applied.
 Finally, you will notice that some patches can be **reverted**.
+
+Using the patch service (command line interface)
+------------------------------------------------
+
+You can also apply patches using the Mouf console. This is especially useful for deployments in continuous integration environments or on a production server.
+
+```sh
+$ # Apply all default patches
+$ vendor/bin/mouf_console patches:apply-all
+$
+$ # Apply all patches from type default AND test_data
+$ vendor/bin/mouf_console patches:apply-all --test-data
+$
+$ # View a list of all patches
+$ vendor/bin/mouf_console patches:list
+$
+$ # Apply one specific patch by name
+$ vendor/bin/mouf_console patches:apply [patch_name]
+$
+$ # Revert one specific patch by name
+$ vendor/bin/mouf_console patches:revert [patch_name]
+```
 
 
 Creating/Editing a database patch
@@ -74,13 +96,23 @@ In this case, you should **skip** the patch (there is no point in applying this 
 - If you haven't applied the patch yet, you can choose to save and **apply** the patch.
 - Finally, you can also choose to save, but **do not apply** the patch yet. In this case, the patch will be in **Awating** state. 
  
-###Advanced options
+### Advanced options
 
 There are a number of advanced options. These will allow you to:
 
 - Choose the file saving the patch (the SQL of the patch is stored in its own file, usually in the **database/up** directory.
 - Set up a *reverse patch* that can be used to cancel/revert your patch.
 
+### Patch type
+
+When creating a database patch, you can select a patch "type".
+
+By default, the package comes with 2 bundled types:
+
+- *default*: for patches that should always be applied (like patches modifying the database model)
+- *test_data*: for patches that should be applied conditionnally based on the environment (you might want test data in your development environment but not in production)
+
+You can also edit thos patch types or add your own patch types by editing the `patchService` instance in Mouf.
 
 [You are a package developer? You want your own package to create/modify tables? See how you can use the patch system for that.](doc/for_packages_developer.md)  
 [Want to learn more about the patch system? Want to learn how to create you own non db-related patches? Have a look at the advanced documentation.](doc/advanced.md)

@@ -37,7 +37,8 @@ if ($this->nbAwaiting == 0 && $this->nbError == 0) {
 	<tr>
 		<th style="width:10%">Status</th>
 		<th style="width:20%">Name</th>
-		<th style="width:40%">Description</th>
+		<th style="width:30%">Description</th>
+        <th style="width:10%">Type</th>
 		<th style="width:30%">Actions</th>
 	</tr>
 <?php 
@@ -63,6 +64,7 @@ foreach ($this->patchesArray as $patch): ?>
 		</td>
 		<td><?php echo plainstring_to_htmlprotected($patch['uniqueName']) ?></td>
 		<td><?php echo plainstring_to_htmlprotected($patch['description']) ?></td>
+        <td><?php echo $patch['patch_type'] ? plainstring_to_htmlprotected($patch['patch_type']) : '<i>(default)</i>' ?></td>
 		<td>
 		<?php 
 		

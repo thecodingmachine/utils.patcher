@@ -8,6 +8,7 @@ namespace Mouf\Utils\Patcher;
 
 use Mouf\Actions\InstallUtils;
 use Mouf\Console\ConsoleUtils;
+use Mouf\Database\Patcher\PatchConnection;
 use Mouf\Installer\PackageInstallerInterface;
 use Mouf\MoufManager;
 use Mouf\Utils\Patcher\Commands\ApplyAllPatchesCommand;
@@ -16,7 +17,7 @@ use Mouf\Utils\Patcher\Commands\ListPatchesCommand;
 use Mouf\Utils\Patcher\Commands\RevertPatchCommand;
 use Mouf\Utils\Patcher\Commands\SkipPatchCommand;
 
-class PatchInstaller implements PackageInstallerInterface
+class PatchInstaller2 implements PackageInstallerInterface
 {
     /**
      * (non-PHPdoc)
@@ -27,7 +28,19 @@ class PatchInstaller implements PackageInstallerInterface
     public static function install(MoufManager $moufManager)
     {
         // Let's create the instance.
-        $patchService = InstallUtils::getOrCreateInstance('patchService', 'Mouf\\Utils\\Patcher\\PatchService', $moufManager);
+        $patchDefaultType = InstallUtils::getOrCreateInstance('patch.default_type', PatchType::class, $moufManager);
+        $patchDefaultType->getConstructorArgumentProperty('name')->setValue('');
+        $patchDefaultType->getConstructorArgumentProperty('description')->setValue('Patches that should be always applied should have this type. Typically, use this type for DDL changes or reference data insertion.');
+
+        $patchTestDataType = InstallUtils::getOrCreateInstance('patch.testdata_type', PatchType::class, $moufManager);
+        $patchTestDataType->getConstructorArgumentProperty('name')->setValue('test_data');
+        $patchTestDataType->getConstructorArgumentProperty('description')->setValue('Use this type to mark patches that contain test data that should only be used in staging environment.');
+
+        $patchService = InstallUtils::getOrCreateInstance('patchService', PatchService::class, $moufManager);
+
+        if (empty($patchService->getConstructorArgumentProperty('types')->getValue())) {
+            $patchService->getConstructorArgumentProperty('types')->setValue([ $patchDefaultType, $patchTestDataType ]);
+        }
 
         $consoleUtils = new ConsoleUtils($moufManager);
 

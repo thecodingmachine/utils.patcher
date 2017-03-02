@@ -26,33 +26,33 @@ namespace Mouf\Utils\Patcher;
  */
 interface PatchInterface {
 
-	const STATUS_AWAITING = "awaiting";
-	const STATUS_APPLIED = "applied";
-	const STATUS_SKIPPED = "skipped";
-	const STATUS_ERROR = "error";
+	const STATUS_AWAITING = 'awaiting';
+	const STATUS_APPLIED = 'applied';
+	const STATUS_SKIPPED = 'skipped';
+	const STATUS_ERROR = 'error';
 	
 	/**
 	 * Applies the patch.
 	 */
-	function apply();
+	public function apply(): void;
 	
 	/**
 	 * Skips the patch (sets its status to "skipped").
 	 */
-	function skip();
+    public function skip(): void;
 
 	/**
 	 * Reverts (cancels) the patch.
 	 * Note: patchs do not have to provide a "revert" feature (see canRevert method).
 	 */
-	function revert();
+    public function revert(): void;
 	
 	/**
 	 * Returns true if this patch can be canceled, false otherwise.
 	 * 
 	 * @return boolean
 	 */
-	function canRevert();
+    public function canRevert(): bool;
 	
 	/**
 	 * Returns the status of this patch.
@@ -65,28 +65,28 @@ interface PatchInterface {
 	 * 
 	 * @return string
 	 */
-	function getStatus();
+    public function getStatus(): string;
 	
 	/**
 	 * Returns a unique name for this patch. 
 	 *
 	 * @return string
 	 */
-	function getUniqueName();
+    public function getUniqueName(): string;
 	
 	/**
 	 * Returns a short description of the patch.
 	 * 
 	 * @return string
 	 */
-	function getDescription();
+    public function getDescription(): string;
 	
 	/**
 	 * Returns the error message of the last action performed, or null if last action was successful.
 	 * 
 	 * @return string
 	 */
-	function getLastErrorMessage();
+    public function getLastErrorMessage(): ?string;
 	
 	/**
 	 * Returns the URL that can be used to edit this patch.
@@ -94,6 +94,12 @@ interface PatchInterface {
 	 * 
 	 * @return string
 	 */
-	function getEditUrl();
-}
+    public function getEditUrl(): string;
 
+    /**
+     * Returns the type of the patch.
+     *
+     * @return PatchType
+     */
+    public function getPatchType() : PatchType;
+}

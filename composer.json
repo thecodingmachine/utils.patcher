@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-    	"php": ">=5.5.0",
+    	"php": ">=7.0",
     	"mouf/mouf-validators-interface": "~2.0",
 	    "mouf/utils.console": "~1.0"
     },
@@ -26,7 +26,7 @@
 	     "mouf": {
 		    "install" : [{
 			    "type" : "class",
-			    "class" : "Mouf\\Utils\\Patcher\\PatchInstaller",
+			    "class" : "Mouf\\Utils\\Patcher\\PatchInstaller2",
 			    "description": "Create the patchService instance."
 			}
 		    ],

@@ -54,12 +54,12 @@ EOT
         $patches = $this->patchService->getView();
 
         $rows = array_map(function($row) {
-            return [ $row['uniqueName'], $this->renderStatus($row['status']) ];
+            return [ $row['uniqueName'], $this->renderStatus($row['status']), $row['patch_type'] ?: '(default)' ];
         }, $patches);
 
         $table = new Table($output);
         $table
-            ->setHeaders(array('Patch', 'Status'))
+            ->setHeaders(array('Patch', 'Status', 'Type'))
             ->setRows($rows)
         ;
         $table->render();
