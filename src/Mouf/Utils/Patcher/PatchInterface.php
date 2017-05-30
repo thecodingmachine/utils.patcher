@@ -94,7 +94,7 @@ interface PatchInterface {
 	 * 
 	 * @return string
 	 */
-    public function getEditUrl(): string;
+    public function getEditUrl(): ?string;
 
     /**
      * Returns the type of the patch.
