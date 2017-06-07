@@ -294,6 +294,44 @@ class PatchService implements MoufValidatorInterface {
 	}
 
     /**
+     * Apply all remaining patches (patches in state "awaiting" or in "error").
+     * The types of the patches can be passed as an array of string where the string is the name of the patch.
+     * Patches with the "default" type are always applied.
+     *
+     * @param string[] $types
+     * @return array An array containing 2 keys: "applied" and "skipped". Each key contains an associative array with the type of the patch and the number of patches of this type applied.
+     */
+	public function applyAll(array $types = []): array {
+        // Array of count of applied and skipped patches. Key is the patch type.
+        $appliedPatchArray = [];
+        $skippedPatchArray = [];
+
+        foreach ($this->patchs as $patch) {
+            if ($patch->getStatus() === PatchInterface::STATUS_AWAITING || $patch->getStatus() === PatchInterface::STATUS_ERROR) {
+                $type = $patch->getPatchType()->getName();
+                if ($type === '' || in_array($type, $types, true)) {
+                    $this->apply($patch->getUniqueName());
+                    if (!isset($appliedPatchArray[$type])) {
+                        $appliedPatchArray[$type] = 0;
+                    }
+                    $appliedPatchArray[$type]++;
+                } else {
+                    $this->skip($patch->getUniqueName());
+                    if (!isset($skippedPatchArray[$type])) {
+                        $skippedPatchArray[$type] = 0;
+                    }
+                    $skippedPatchArray[$type]++;
+                }
+            }
+        }
+
+        return [
+            'applied' => $appliedPatchArray,
+            'skipped' => $skippedPatchArray
+        ];
+    }
+
+    /**
      * Reset all patches to a not applied state.
      *
      * Note: this does NOT run the "revert" method on each patch but DOES trigger a "reset" event.

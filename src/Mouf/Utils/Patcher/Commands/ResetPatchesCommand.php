@@ -13,20 +13,8 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Command to reset and reapply all patches
  */
-class ResetPatchesCommand extends Command
+class ResetPatchesCommand extends AbstractApplyAllCommand
 {
-    /**
-     * @var PatchService
-     */
-    private $patchService;
-
-    public function __construct(PatchService $patchService)
-    {
-        $this->patchService = $patchService;
-        parent::__construct();
-    }
-
-
     /**
      * {@inheritdoc}
      */
@@ -45,11 +33,7 @@ Use patches:apply-all if you want to apply remaining patches without resetting t
 EOT
         );
 
-        foreach ($this->patchService->getTypes() as $type) {
-            if ($type->getName() !== '') {
-                $this->addOption($type->getName(), null, InputOption::VALUE_NONE, 'Applies patches of type "'.$type->getName().'". '.$type->getDescription());
-            }
-        }
+        $this->registerOptions();
     }
 
     /**
@@ -59,27 +43,6 @@ EOT
     {
         $this->patchService->reset();
 
-        $patchesArray = $this->patchService->getView();
-
-        $count = 0;
-        try {
-            foreach ($patchesArray as $patch) {
-                $this->patchService->apply($patch['uniqueName']);
-                $count++;
-            }
-        } catch (\Exception $e) {
-            $output->writeln(sprintf(
-                    'An error occurred while applying patch <info>%s</info>: <error>%s</error>', $patch['uniqueName'], $e->getMessage()
-                ));
-            throw $e;
-        }
-
-        if ($count) {
-            $output->writeln(sprintf(
-                    'Database has been reset, <info>%d</info> patches successfully applied', $count
-                ));
-        } else {
-            $output->writeln('<info>Database has been reset, no patches to apply</info>');
-        }
+        $this->applyAll($input, $output);
     }
 }

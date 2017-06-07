@@ -16,6 +16,7 @@ use Mouf\Html\HtmlElement\HtmlBlock;
 use Mouf\InstanceProxy;
 use Mouf\Utils\Patcher\PatchException;
 use Mouf\Utils\Patcher\PatchInterface;
+use Mouf\Utils\Patcher\PatchService;
 
 /**
  * The controller to track which patchs have been applied.
@@ -153,42 +154,23 @@ class PatchController extends AbstractMoufInstanceController {
      * @Action
      * @Logged
      * @param string $name
-     * @param array $types
+     * @param string[] $types
      * @param string $action One of "reset" or "apply"
      * @param string $selfedit
      */
 	public function applyAllPatches($name, array $types, $action, $selfedit) {
 		$patchService = new InstanceProxy($name, $selfedit == "true");
+		/* @var $patchService PatchService */
 
         if ($action === 'reset') {
             $patchService->reset();
         }
+        try {
 
-		$this->patchesArray = $patchService->getView();
-
-		// Array of count of applied and skipped patches. Key is the patch type.
-		$appliedPatchArray = [];
-        $skippedPatchArray = [];
-
-		try {
-			foreach ($this->patchesArray as $patch) {
-                if ($patch['status'] === PatchInterface::STATUS_AWAITING || $patch['status'] === PatchInterface::STATUS_ERROR) {
-                    $type = $patch['patch_type'];
-                    if (in_array($type, $types) || $type === '') {
-                        $patchService->apply($patch['uniqueName']);
-                        if (!isset($appliedPatchArray[$type])) {
-                            $appliedPatchArray[$type] = 0;
-                        }
-                        $appliedPatchArray[$type]++;
-                    } else {
-                        $patchService->skip($patch['uniqueName']);
-                        if (!isset($skippedPatchArray[$type])) {
-                            $skippedPatchArray[$type] = 0;
-                        }
-                        $skippedPatchArray[$type]++;
-                    }
-                }
-			}
+            [
+                'applied' => $appliedPatchArray,
+                'skipped' => $skippedPatchArray
+            ] = $patchService->applyAll($types);
 
 		} catch (\Exception $e) {
 			$htmlMessage = "An error occured while applying the patch: ".$e->getMessage();
@@ -212,7 +194,7 @@ class PatchController extends AbstractMoufInstanceController {
                 $patchArr[] = plainstring_to_htmlprotected($name).': '.$number;
             }
 
-            $msg .= sprintf('%d patch(es) applied (%s)', $nbPatchesApplied, implode(', ', $patchArr));
+            $msg .= sprintf('%d patch%s applied (%s)', $nbPatchesApplied, ($nbPatchesApplied > 1)?'es':'', implode(', ', $patchArr));
         }
         if ($nbPatchesSkipped !== 0) {
             $patchArr = [];
@@ -221,7 +203,7 @@ class PatchController extends AbstractMoufInstanceController {
                 $patchArr[] = plainstring_to_htmlprotected($name).': '.$number;
             }
 
-            $msg .= sprintf('%d patch(es) skipped (%s)', $nbPatchesSkipped, implode(', ', $patchArr));
+            $msg .= sprintf('%d patch%s skipped (%s)', $nbPatchesSkipped, ($nbPatchesSkipped > 1)?'es':'', implode(', ', $patchArr));
         }
 
         if ($msg !== '') {

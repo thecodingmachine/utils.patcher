@@ -23,5 +23,6 @@ namespace Mouf\Utils\Patcher;
  * @author David Negrier <david@mouf-php.com>
  */
 class PatchException extends \Exception {
+
 }
 
