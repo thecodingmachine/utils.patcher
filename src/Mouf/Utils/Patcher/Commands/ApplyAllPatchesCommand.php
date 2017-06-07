@@ -13,18 +13,8 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Command to apply all patches
  */
-class ApplyAllPatchesCommand extends Command
+class ApplyAllPatchesCommand extends AbstractApplyAllCommand
 {
-    /**
-     * @var PatchService
-     */
-    private $patchService;
-
-    public function __construct(PatchService $patchService)
-    {
-        $this->patchService = $patchService;
-        parent::__construct();
-    }
 
 
     /**
@@ -45,11 +35,7 @@ Use patches:apply if you want to cherry-pick a particular patch.
 EOT
         );
 
-        foreach ($this->patchService->getTypes() as $type) {
-            if ($type->getName() !== '') {
-                $this->addOption($type->getName(), null, InputOption::VALUE_NONE, 'Applies patches of type "'.$type->getName().'". '.$type->getDescription());
-            }
-        }
+        $this->registerOptions();
     }
 
     /**
@@ -57,29 +43,6 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $patchesArray = $this->patchService->getView();
-
-        $count = 0;
-        try {
-            foreach ($patchesArray as $patch) {
-                if ($patch['status'] == PatchInterface::STATUS_AWAITING || $patch['status'] == PatchInterface::STATUS_ERROR) {
-                    $this->patchService->apply($patch['uniqueName']);
-                    $count++;
-                }
-            }
-        } catch (\Exception $e) {
-            $output->writeln(sprintf(
-                    'An error occurred while applying patch <info>%s</info>: <error>%s</error>', $patch['uniqueName'], $e->getMessage()
-                ));
-            throw $e;
-        }
-
-        if ($count) {
-            $output->writeln(sprintf(
-                    '<info>%d</info> patches successfully applied', $count
-                ));
-        } else {
-            $output->writeln('<info>No patches to apply</info>');
-        }
+        $this->applyAll($input, $output);
     }
 }
