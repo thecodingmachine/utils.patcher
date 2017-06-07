@@ -14,10 +14,11 @@ use Mouf\MoufManager;
 use Mouf\Utils\Patcher\Commands\ApplyAllPatchesCommand;
 use Mouf\Utils\Patcher\Commands\ApplyPatchCommand;
 use Mouf\Utils\Patcher\Commands\ListPatchesCommand;
+use Mouf\Utils\Patcher\Commands\ResetPatchesCommand;
 use Mouf\Utils\Patcher\Commands\RevertPatchCommand;
 use Mouf\Utils\Patcher\Commands\SkipPatchCommand;
 
-class PatchInstaller2 implements PackageInstallerInterface
+class PatchInstaller3 implements PackageInstallerInterface
 {
     /**
      * (non-PHPdoc)
@@ -64,6 +65,9 @@ class PatchInstaller2 implements PackageInstallerInterface
         $revertPatchCommand->getConstructorArgumentProperty("patchService")->setValue($patchService);
         $consoleUtils->registerCommand($revertPatchCommand);
 
+        $resetPatchCommand = $moufManager->createInstance(ResetPatchesCommand::class);
+        $resetPatchCommand->getConstructorArgumentProperty("patchService")->setValue($patchService);
+        $consoleUtils->registerCommand($resetPatchCommand);
 
         // Let's rewrite the MoufComponents.php file to save the component
         $moufManager->rewriteMouf();
