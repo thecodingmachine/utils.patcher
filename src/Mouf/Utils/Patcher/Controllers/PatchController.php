@@ -39,6 +39,7 @@ class PatchController extends AbstractMoufInstanceController {
 	protected $nbError = 0;
 
 	protected $nbPatchesByType = [];
+	protected $action;
 	
 	/**
 	 * Page listing the patches to be applied.
@@ -104,8 +105,9 @@ class PatchController extends AbstractMoufInstanceController {
      * @Logged
      * @param string $name
      * @param string $selfedit
+     * @param string $action One of "reset" or "apply"
      */
-    public function runAllPatches($name, $selfedit) {
+    public function runAllPatches($name, $selfedit, $action) {
         $this->initController($name, $selfedit);
 
         $patchService = new InstanceProxy($name, $selfedit == "true");
@@ -120,7 +122,7 @@ class PatchController extends AbstractMoufInstanceController {
         $nbNoneDefaultPatches = 0;
 
         foreach ($this->patchesArray as $patch) {
-            if ($patch['status'] == PatchInterface::STATUS_AWAITING || $patch['status'] == PatchInterface::STATUS_ERROR) {
+            if ($action === 'reset' || $patch['status'] === PatchInterface::STATUS_AWAITING || $patch['status'] === PatchInterface::STATUS_ERROR) {
                 $type = $patch['patch_type'];
                 if ($type !== '') {
                     $nbNoneDefaultPatches++;
@@ -131,11 +133,13 @@ class PatchController extends AbstractMoufInstanceController {
 
         // If all patches to be applied are default patches, let's do this right now.
         if ($nbNoneDefaultPatches === 0) {
-            $this->applyAllPatches($name, [''], $selfedit);
+            $this->applyAllPatches($name, [''], $action, $selfedit);
             return;
         }
 
         ksort($this->nbPatchesByType);
+
+        $this->action = $action;
 
         // Otherwise, let's display a screen to select the patch types to be applied.
         $this->content->addFile(__DIR__."/../../../../views/applyPatches.php", $this);
@@ -150,19 +154,25 @@ class PatchController extends AbstractMoufInstanceController {
      * @Logged
      * @param string $name
      * @param array $types
+     * @param string $action One of "reset" or "apply"
      * @param string $selfedit
      */
-	public function applyAllPatches($name, array $types, $selfedit) {
+	public function applyAllPatches($name, array $types, $action, $selfedit) {
 		$patchService = new InstanceProxy($name, $selfedit == "true");
+
+        if ($action === 'reset') {
+            $patchService->reset();
+        }
+
 		$this->patchesArray = $patchService->getView();
 
-		// Array of cound of applied and skip patched. Key is the patch type.
+		// Array of count of applied and skipped patches. Key is the patch type.
 		$appliedPatchArray = [];
         $skippedPatchArray = [];
 
 		try {
 			foreach ($this->patchesArray as $patch) {
-                if ($patch['status'] == PatchInterface::STATUS_AWAITING || $patch['status'] == PatchInterface::STATUS_ERROR) {
+                if ($patch['status'] === PatchInterface::STATUS_AWAITING || $patch['status'] === PatchInterface::STATUS_ERROR) {
                     $type = $patch['patch_type'];
                     if (in_array($type, $types) || $type === '') {
                         $patchService->apply($patch['uniqueName']);
