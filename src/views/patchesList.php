@@ -11,13 +11,14 @@ if ($this->nbAwaiting == 0 && $this->nbError == 0) {
 ?>
 <div class="alert alert-success">There are no patches that need to be executed.</div>
 <?php 
-} else {
+}
 ?>
 <form action="runAllPatches" method="post">
 	<input name="name" type="hidden" value="<?php echo plainstring_to_htmlprotected($this->instanceName); ?>"></input>
 	<input name="selfedit" type="hidden" value="<?php echo plainstring_to_htmlprotected($this->selfedit); ?>"></input>
-<?php 
-	echo '<button class="btn btn-large btn-success patch-run-all"><i class="icon-arrow-right icon-white"></i> Apply ';
+<?php
+if ($this->nbAwaiting != 0 || $this->nbError != 0) {
+	echo '<button name="action" value="apply" class="btn btn-large btn-success patch-run-all"><i class="icon-arrow-right icon-white"></i> Apply ';
 	if ($this->nbAwaiting != 0) {
 		echo $this->nbAwaiting." awaiting patch".(($this->nbAwaiting != 1)?"es":"");
 		if ($this->nbError != 0) {
@@ -28,11 +29,12 @@ if ($this->nbAwaiting == 0 && $this->nbError == 0) {
 		echo $this->nbError." patch".(($this->nbError != 1)?"es":"")." in error";
 	}
 	echo '</button>';
-?>
-</form>
-<?php
 }
 ?>
+
+    <button name="action" value="reset" class="btn btn-large btn-danger patch-reset"><i class="icon-remove icon-white"></i> Reset database and apply all patches</button>
+</form>
+
 <table class="table table-stripped">
 	<tr>
 		<th style="width:10%">Status</th>

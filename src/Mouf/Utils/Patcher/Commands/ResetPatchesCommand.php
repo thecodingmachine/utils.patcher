@@ -11,9 +11,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Command to apply all patches
+ * Command to reset and reapply all patches
  */
-class ApplyAllPatchesCommand extends Command
+class ResetPatchesCommand extends Command
 {
     /**
      * @var PatchService
@@ -33,15 +33,15 @@ class ApplyAllPatchesCommand extends Command
     protected function configure()
     {
         $this
-        ->setName('patches:apply-all')
-        ->setDescription('Apply pending patches.')
+        ->setName('patches:reset')
+        ->setDescription('Reset database and reapply all patches.')
         ->setDefinition(array(
 
         ))
         ->setHelp(<<<EOT
-Apply pending patches. You can select the type of patches to be applied using the options. Default patches are always applied.
+Reset the database and reapplies all pending patches. You can select the type of patches to be applied using the options. Default patches are always applied.
 
-Use patches:apply if you want to cherry-pick a particular patch.
+Use patches:apply-all if you want to apply remaining patches without resetting the database.
 EOT
         );
 
@@ -57,15 +57,15 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->patchService->reset();
+
         $patchesArray = $this->patchService->getView();
 
         $count = 0;
         try {
             foreach ($patchesArray as $patch) {
-                if ($patch['status'] == PatchInterface::STATUS_AWAITING || $patch['status'] == PatchInterface::STATUS_ERROR) {
-                    $this->patchService->apply($patch['uniqueName']);
-                    $count++;
-                }
+                $this->patchService->apply($patch['uniqueName']);
+                $count++;
             }
         } catch (\Exception $e) {
             $output->writeln(sprintf(
@@ -76,10 +76,10 @@ EOT
 
         if ($count) {
             $output->writeln(sprintf(
-                    '<info>%d</info> patches successfully applied', $count
+                    'Database has been reset, <info>%d</info> patches successfully applied', $count
                 ));
         } else {
-            $output->writeln('<info>No patches to apply</info>');
+            $output->writeln('<info>Database has been reset, no patches to apply</info>');
         }
     }
 }

@@ -26,7 +26,7 @@
 	     "mouf": {
 		    "install" : [{
 			    "type" : "class",
-			    "class" : "Mouf\\Utils\\Patcher\\PatchInstaller2",
+			    "class" : "Mouf\\Utils\\Patcher\\PatchInstaller3",
 			    "description": "Create the patchService instance."
 			}
 		    ],

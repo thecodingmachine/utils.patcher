@@ -49,11 +49,20 @@ class PatchService implements MoufValidatorInterface {
 	private $types = [];
 
     /**
-     * @param PatchType[] $types
+     * The list of listeners on the patch service.
+     *
+     * @var array|PatchListenerInterface[]
      */
-    public function __construct(array $types)
+    private $listeners;
+
+    /**
+     * @param PatchType[] $types
+     * @param PatchListenerInterface[] $listeners
+     */
+    public function __construct(array $types, array $listeners = [])
     {
         $this->types = $types;
+        $this->listeners = $listeners;
     }
 
     /**
@@ -283,4 +292,15 @@ class PatchService implements MoufValidatorInterface {
 		$patch = $this->get($uniqueName);
 		$patch->revert();
 	}
+
+    /**
+     * Reset all patches to a not applied state.
+     *
+     * Note: this does NOT run the "revert" method on each patch but DOES trigger a "reset" event.
+     */
+	public function reset(): void {
+        foreach ($this->listeners as $listener) {
+            $listener->onReset();
+        }
+    }
 }
