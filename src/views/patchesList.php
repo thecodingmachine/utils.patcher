@@ -129,4 +129,7 @@ $(".patch-skip").click(function() {
 	$('#action').val('skip');
 	$('#patchesForm').submit();
 });
+$(".patch-reset").click(function() {
+    return confirm('You are about to reset your complete database. Are you sure you want to continue?');
+});
 </script>
