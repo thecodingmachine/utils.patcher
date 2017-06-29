@@ -172,12 +172,12 @@ class PatchController extends AbstractMoufInstanceController {
                 'skipped' => $skippedPatchArray
             ] = $patchService->applyAll($types);
 
-		} catch (\Exception $e) {
+            $this->displayNotificationMessage($appliedPatchArray, $skippedPatchArray);
+        } catch (\Exception $e) {
 			$htmlMessage = "An error occured while applying the patch: ".$e->getMessage();
 			set_user_message($htmlMessage);
 		}
 
-        $this->displayNotificationMessage($appliedPatchArray, $skippedPatchArray);
 
         header('Location: .?name='.urlencode($name));
 	}
