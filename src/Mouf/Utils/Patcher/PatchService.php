@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace Mouf\Utils\Patcher;
 
+use Mouf\Utils\Patcher\Dumper\DumpableInterface;
+use Mouf\Utils\Patcher\Dumper\DumperInterface;
 use Mouf\Validator\MoufValidatorInterface;
 use Mouf\MoufManager;
 use Mouf\Validator\MoufValidatorResult;
@@ -29,7 +31,7 @@ use Mouf\Validator\MoufValidatorResult;
  * @author David Negrier <david@mouf-php.com>
  * @ExtendedAction {"name":"View patches list", "url":"patcher/", "default":false}
  */
-class PatchService implements MoufValidatorInterface {
+class PatchService implements MoufValidatorInterface, DumpableInterface {
     const IFEXISTS_EXCEPTION = "exception";
     const IFEXISTS_IGNORE = "ignore";
 
@@ -54,6 +56,11 @@ class PatchService implements MoufValidatorInterface {
      * @var array|PatchListenerInterface[]
      */
     private $listeners;
+
+    /**
+     * @var DumperInterface
+     */
+    private $dumper;
 
     /**
      * @param PatchType[] $types
@@ -271,6 +278,10 @@ class PatchService implements MoufValidatorInterface {
 	 */
 	public function apply($uniqueName): void {
 		$patch = $this->get($uniqueName);
+		if ($patch instanceof DumpableInterface && $this->dumper !== null) {
+		    $patch->setDumper($this->dumper);
+        }
+        // TODO: in next major version, get rid of the DumpableInterface and pass the dumper right in the apply method.
 		$patch->apply();
 	}
 	
@@ -280,6 +291,9 @@ class PatchService implements MoufValidatorInterface {
 	 */
 	public function skip($uniqueName): void {
 		$patch = $this->get($uniqueName);
+        if ($patch instanceof DumpableInterface && $this->dumper !== null) {
+            $patch->setDumper($this->dumper);
+        }
 		$patch->skip();
 	}
 	
@@ -290,6 +304,9 @@ class PatchService implements MoufValidatorInterface {
 	 */
 	public function revert($uniqueName): void {
 		$patch = $this->get($uniqueName);
+        if ($patch instanceof DumpableInterface && $this->dumper !== null) {
+            $patch->setDumper($this->dumper);
+        }
 		$patch->revert();
 	}
 
@@ -338,7 +355,15 @@ class PatchService implements MoufValidatorInterface {
      */
 	public function reset(): void {
         foreach ($this->listeners as $listener) {
+            if ($listener instanceof DumpableInterface && $this->dumper !== null) {
+                $listener->setDumper($this->dumper);
+            }
             $listener->onReset();
         }
+    }
+
+    public function setDumper(DumperInterface $dumper)
+    {
+        $this->dumper = $dumper;
     }
 }

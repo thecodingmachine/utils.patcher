@@ -1,6 +1,7 @@
 <?php
 namespace Mouf\Utils\Patcher\Commands;
 
+use Mouf\Utils\Patcher\Dumper\Dumper;
 use Mouf\Utils\Patcher\PatchInterface;
 use Mouf\Utils\Patcher\PatchService;
 use Symfony\Component\Console\Helper\Table;
@@ -44,6 +45,8 @@ class RevertPatchCommand extends Command
 Reverts a patch. You must pass in parameter the name of the patch.
 EOT
         );
+
+        $this->addOption('dump', 'd', InputOption::VALUE_NONE, 'Dumps the patch to the output. Note: this is not a "dry" mode. The patch will still be reverted.');
     }
 
     /**
@@ -51,6 +54,10 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($input->getOption('dump')) {
+            $this->patchService->setDumper(new Dumper($output));
+        }
+
         $patchName = $input->getArgument('name');
         $this->patchService->revert($patchName);
 

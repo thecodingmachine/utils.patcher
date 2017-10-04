@@ -1,6 +1,7 @@
 <?php
 namespace Mouf\Utils\Patcher\Commands;
 
+use Mouf\Utils\Patcher\Dumper\Dumper;
 use Mouf\Utils\Patcher\PatchInterface;
 use Mouf\Utils\Patcher\PatchService;
 use Symfony\Component\Console\Helper\Table;
@@ -34,6 +35,8 @@ EOT
         );
 
         $this->registerOptions();
+
+        $this->addOption('dump', 'd', InputOption::VALUE_NONE, 'Dumps the patch to the output. Note: this is not a "dry" mode. The database will still be reset.');
     }
 
     /**
@@ -41,6 +44,10 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($input->getOption('dump')) {
+            $this->patchService->setDumper(new Dumper($output));
+        }
+
         $this->patchService->reset();
 
         $this->applyAll($input, $output);
